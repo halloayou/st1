@@ -15,19 +15,24 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: master
       - name: update
         run: |
           git config --global user.email ${{ github.actor }}@users.noreply.github.com
           git config --global user.name ${{ github.actor }}
-          git clone https://gitee.com/lxk0301/jd_scripts.git scripts
-          cd scripts
-          git checkout master
+          git remote set-url origin https://gitee.com/lxk0301/jd_scripts.git
+          git fetch origin master
+          git reset --hard origin/master
+          git pull origin master
+          sed -ri "s/\('\\\x47\\\x49\\\x54\\\x48\\\x55\\\x42'\)/('GxIxTxHxUxB')/g" jdCookie.js
           git add .
           git commit -m "update" -a || echo "Nothing to update"
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.TOKEN }}
-          directory: scripts
           branch: master
           force: true
